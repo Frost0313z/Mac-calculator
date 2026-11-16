@@ -34,19 +34,19 @@ def check_case(key, case, filters):
     문제가 생겨도 예외로 멈추지 말고 (False, "사유") 로 돌려준다.
     """
     try:
-        n = int(key.split(___)[___])
-        pair = filters.get(f"size_{___}")
+        n = int(key.split("_")[1])
+        pair = filters.get(f"size_{n}")
         if pair is None:
             return False, f"size_{n} 필터 없음"
 
         pattern = case["input"]
-        if len(pattern) != n or len(pair["Cross"]) != n:
-            return False, f"크기 불일치: 패턴 {len(pattern)}, 필터 {n}"
+        if len(pattern) != n or len(pair["Cross"]) != n or len(pair["X"]) != n:
+            return False, f"크기 불일치: N={n}, 패턴 {len(pattern)}, Cross {len(pair['Cross'])}, X {len(pair['X'])}"
 
-        score_c = mac(___, pair["Cross"])
-        score_x = mac(___, pair["X"])
-        result = judge(score_c, score_x, "Cross", "X", ___)
-        expected = ___(case["expected"])
+        score_c = mac(pattern, pair["Cross"])
+        score_x = mac(pattern, pair["X"])
+        result = judge(score_c, score_x, "Cross", "X", "UNDECIDED")
+        expected = normalize(case["expected"])
         ok = result == expected
 
         print(f"--- {key} ---")
