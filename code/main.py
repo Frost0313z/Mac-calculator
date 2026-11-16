@@ -1,6 +1,6 @@
 """Mini NPU 시뮬레이터 — MAC 연산으로 Cross / X 패턴을 판정한다. (실행 파일)"""
 
-from calc import mac, judge, normalize, avg_ms, print_benchmark
+from calc import mac, judge, normalize, avg_ms, print_benchmark, print_flat_compare
 from loader import read_matrix, load_json
 
 
@@ -87,6 +87,9 @@ def mode_json():
 
     print("\n# [3] 성능 분석 (평균/10회)")
     print_benchmark([3, 5, 13, 25])
+
+    print("\n# [3-1] 보너스: 2차원 vs 1차원 (같은 입력 · 평균/10회)")
+    print_flat_compare([3, 5, 13, 25])
 
     print("\n# [4] 결과 요약")
     print(f"총 테스트: {len(patterns)}개")
