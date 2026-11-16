@@ -41,11 +41,17 @@ def normalize(label):
 
 def avg_ms(pattern, filt, repeat=REPEAT):
     """[9단계] mac() 을 repeat 번 돌린 평균 시간(ms). 연산 구간만 잰다."""
-    # TODO: time.perf_counter() 로 앞뒤 시간 재기
-    pass
+    start = time.perf_counter()
+    for _ in range(repeat):
+        mac(pattern, filt)
+    return (time.perf_counter() - start) / repeat * 1000
 
 
 def print_benchmark(sizes):
     """[9단계] 크기(N×N) / 평균 시간(ms) / 연산 횟수(N²) 표를 출력한다."""
-    # TODO: 크기마다 n×n 행렬을 만들어 avg_ms() 호출
-    pass
+    print("크기      평균 시간(ms)    연산 횟수")
+    print("-" * 37)
+    for n in sizes:
+        grid = [[1.0] * n for _ in range(n)]
+        ms = avg_ms(grid, grid)
+        print(f"{n}×{n}".ljust(10) + f"{ms:.4f}".ljust(17) + str(n * n))
