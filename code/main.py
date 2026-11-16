@@ -24,7 +24,7 @@ def mode_user():
     print(f"A 점수: {score_a}")
     print(f"B 점수: {score_b}")
     print(f"판정: {result}")
-    # TODO [9단계] 연산 시간(평균/10회) 출력
+    print(f"연산 시간(평균/10회): {avg_ms(pattern, filter_a):.4f} ms")
 
 
 def check_case(key, case, filters):
