@@ -37,13 +37,28 @@ def normalize(label):
     return LABELS.get(key)
 
 
+# ---------------------------------------------------------------- 보너스: 1차원 최적화
+
+def flatten(grid):
+    """[보너스] n×n 2차원 리스트를 줄 순서대로 이어 길이 n² 의 1차원 리스트로 편다."""
+    return [v for row in grid for v in row]
+
+
+def mac_flat(a, b):
+    """[보너스] 1차원으로 편 두 격자의 MAC. 인덱스 하나(k)로만 접근한다."""
+    total = 0.0
+    for k in range(len(a)):
+        total += a[k] * b[k]
+    return total
+
+
 # ---------------------------------------------------------------- 성능
 
-def avg_ms(pattern, filt, repeat=REPEAT):
-    """[9단계] mac() 을 repeat 번 돌린 평균 시간(ms). 연산 구간만 잰다."""
+def avg_ms(pattern, filt, repeat=REPEAT, fn=mac):
+    """[9단계] fn(기본 mac) 을 repeat 번 돌린 평균 시간(ms). 연산 구간만 잰다."""
     start = time.perf_counter()
     for _ in range(repeat):
-        mac(pattern, filt)
+        fn(pattern, filt)
     return (time.perf_counter() - start) / repeat * 1000
 
 
@@ -55,3 +70,15 @@ def print_benchmark(sizes):
         grid = [[1.0] * n for _ in range(n)]
         ms = avg_ms(grid, grid)
         print(f"{n}×{n}".ljust(10) + f"{ms:.4f}".ljust(17) + str(n * n))
+
+
+def print_flat_compare(sizes):
+    """[보너스] 같은 입력 · 같은 반복 횟수로 2차원 mac 과 1차원 mac_flat 의 평균 시간을 비교한다."""
+    print("크기      2차원(ms)    1차원(ms)    빨라진 배수")
+    print("-" * 46)
+    for n in sizes:
+        grid = [[1.0] * n for _ in range(n)]
+        flat = flatten(grid)              # 펴는 시간은 측정 밖
+        ms_2d = avg_ms(grid, grid)
+        ms_1d = avg_ms(flat, flat, fn=mac_flat)
+        print(f"{n}×{n}".ljust(10) + f"{ms_2d:.4f}".ljust(13) + f"{ms_1d:.4f}".ljust(13) + f"{ms_2d / ms_1d:.2f}배")
