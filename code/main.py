@@ -65,8 +65,37 @@ def check_case(key, case, filters):
 
 def mode_json():
     """[8단계] 필터 로드 → 패턴 판정 · PASS/FAIL → 성능(3·5·13·25) → [10단계] 결과 요약."""
-    # TODO
-    pass
+    try:
+        data = load_json()
+    except (OSError, ValueError) as e:
+        print(f"data.json 을 읽지 못했습니다: {e}")
+        return
+
+    print("\n# [1] 필터 로드")
+    filters = {}
+    for size, pair in data.get("filters", {}).items():
+        filters[size] = {normalize(k): v for k, v in pair.items()}
+        print(f"✓ {size} 필터 로드 완료 (Cross, X)")
+
+    print("\n# [2] 패턴 분석 (라벨 정규화 적용)")
+    fails = []
+    patterns = data.get("patterns", {})
+    for key, case in patterns.items():
+        ok, reason = check_case(key, case, filters)
+        if not ok:
+            fails.append((key, reason))
+
+    print("\n# [3] 성능 분석 (평균/10회)")
+    print_benchmark([3, 5, 13, 25])
+
+    print("\n# [4] 결과 요약")
+    print(f"총 테스트: {len(patterns)}개")
+    print(f"통과: {len(patterns) - len(fails)}개")
+    print(f"실패: {len(fails)}개")
+    if fails:
+        print("\n실패 케이스:")
+        for key, reason in fails:
+            print(f"- {key}: {reason}")
 
 
 # ---------------------------------------------------------------- 시작
