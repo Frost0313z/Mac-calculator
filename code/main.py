@@ -1,5 +1,9 @@
 """Mini NPU 시뮬레이터 — MAC 연산으로 Cross / X 패턴을 판정한다. (실행 파일)"""
 
+import sys
+
+sys.stdout.reconfigure(encoding="utf-8")   # 윈도우(cp949)에서 '—' · '×' · '✓' 출력 오류 방지
+
 from calc import mac, judge, normalize, avg_ms, print_benchmark, print_flat_compare, make_cross, make_x
 from loader import read_matrix, load_json
 
@@ -135,24 +139,30 @@ def mode_generate():
 # ---------------------------------------------------------------- 시작
 
 def main(): #초기 모드 설정화면 세팅
-    """[5단계] 제목과 모드 선택 메뉴를 보여주고 1 / 2 / 3 에 맞는 모드를 부른다."""
+    """[5단계] 제목과 모드 선택 메뉴를 보여주고 1 / 2 / 3 에 맞는 모드를 부른다.
+    모드가 끝나면 메뉴로 돌아오고, 0 을 고르면 끝낸다."""
     print("=== Mini NPU Simulator ===")
-    print("\n[모드 선택]")
-    print("1. 사용자 입력 (3x3)")
-    print("2. data.json 분석")
-    print("3. 패턴 생성기 (N×N Cross · X) — 보너스")
     while True:
-        choice = input("선택: ").strip()
+        print("\n[모드 선택]")
+        print("1. 사용자 입력 (3x3)")
+        print("2. data.json 분석")
+        print("3. 패턴 생성기 (N×N Cross · X) — 보너스")
+        print("0. 종료")
+        try:
+            choice = input("선택: ").strip()
+        except EOFError:          # 입력이 끝나면(Ctrl+Z · 파이프 끝) 조용히 종료
+            return
         if choice == "1":
             mode_user()
-            return
         elif choice == "2":
             mode_json()
-            return
         elif choice == "3":
             mode_generate()
+        elif choice == "0":
+            print("종료합니다.")
             return
-        print("1, 2, 3 중 하나를 입력하세요.")
+        else:
+            print("0, 1, 2, 3 중 하나를 입력하세요.")
 
 
 if __name__ == "__main__":
