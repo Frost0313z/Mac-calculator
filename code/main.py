@@ -1,6 +1,6 @@
 """Mini NPU 시뮬레이터 — MAC 연산으로 Cross / X 패턴을 판정한다. (실행 파일)"""
 
-from calc import mac, judge, normalize, avg_ms, print_benchmark, print_flat_compare
+from calc import mac, judge, normalize, avg_ms, print_benchmark, print_flat_compare, make_cross, make_x
 from loader import read_matrix, load_json
 
 
@@ -101,14 +101,46 @@ def mode_json():
             print(f"- {key}: {reason}")
 
 
+def mode_generate():
+    """[보너스] 크기 N 을 받아 Cross · X 패턴을 만들고, 모드 1 방식 판정과 성능 분석에 재활용한다."""
+    print("\n# [1] 크기 입력")
+    while True:
+        try:
+            n = int(input("N (3 ~ 1001 사이의 홀수): ").strip())
+            if 3 <= n <= 1001 and n % 2 == 1:
+                break
+        except ValueError:
+            pass
+        print("입력 형식 오류: 3 ~ 1001 사이의 홀수를 입력하세요 (가운데 칸이 있어야 십자가 · X 가 대칭입니다).")
+
+    cross, x = make_cross(n), make_x(n)
+    print(f"\n# [2] 생성된 패턴 ({n}×{n})")
+    if n <= 25:
+        for title, grid in (("Cross", cross), ("X", x)):
+            print(title)
+            for row in grid:
+                print(" ".join(str(int(v)) for v in row))
+    else:
+        print("(N 이 25 보다 커서 격자 출력은 생략)")
+
+    print("\n# [3] 모드 1 방식 판정 (필터 A = Cross, 필터 B = X)")
+    for title, pattern in (("Cross", cross), ("X", x)):
+        score_a, score_b = mac(pattern, cross), mac(pattern, x)
+        print(f"패턴 {title}: A 점수 {score_a} / B 점수 {score_b} → 판정 {judge(score_a, score_b)}")
+
+    print("\n# [4] 성능 분석 (평균/10회)")
+    print_benchmark([n])
+
+
 # ---------------------------------------------------------------- 시작
 
 def main(): #초기 모드 설정화면 세팅
-    """[5단계] 제목과 모드 선택 메뉴를 보여주고 1 / 2 에 맞는 모드를 부른다."""
+    """[5단계] 제목과 모드 선택 메뉴를 보여주고 1 / 2 / 3 에 맞는 모드를 부른다."""
     print("=== Mini NPU Simulator ===")
     print("\n[모드 선택]")
     print("1. 사용자 입력 (3x3)")
     print("2. data.json 분석")
+    print("3. 패턴 생성기 (N×N Cross · X) — 보너스")
     while True:
         choice = input("선택: ").strip()
         if choice == "1":
@@ -117,7 +149,10 @@ def main(): #초기 모드 설정화면 세팅
         elif choice == "2":
             mode_json()
             return
-        print("1 또는 2를 입력하세요.")
+        elif choice == "3":
+            mode_generate()
+            return
+        print("1, 2, 3 중 하나를 입력하세요.")
 
 
 if __name__ == "__main__":
