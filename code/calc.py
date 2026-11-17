@@ -52,6 +52,19 @@ def mac_flat(a, b):
     return total
 
 
+# ---------------------------------------------------------------- 보너스: 패턴 생성기
+
+def make_cross(n):
+    """[보너스] n×n 십자가: 가운데 줄과 가운데 칸이 1, 나머지는 0."""
+    mid = n // 2
+    return [[1.0 if i == mid or j == mid else 0.0 for j in range(n)] for i in range(n)]
+
+
+def make_x(n):
+    """[보너스] n×n X: 두 대각선(i == j, i + j == n - 1)이 1, 나머지는 0."""
+    return [[1.0 if i == j or i + j == n - 1 else 0.0 for j in range(n)] for i in range(n)]
+
+
 # ---------------------------------------------------------------- 성능
 
 def avg_ms(pattern, filt, repeat=REPEAT, fn=mac):
@@ -67,8 +80,7 @@ def print_benchmark(sizes):
     print("크기      평균 시간(ms)    연산 횟수")
     print("-" * 37)
     for n in sizes:
-        grid = [[1.0] * n for _ in range(n)]
-        ms = avg_ms(grid, grid)
+        ms = avg_ms(make_cross(n), make_x(n))     # 생성기로 만든 Cross 패턴 × X 필터
         print(f"{n}×{n}".ljust(10) + f"{ms:.4f}".ljust(17) + str(n * n))
 
 
@@ -77,8 +89,8 @@ def print_flat_compare(sizes):
     print("크기      2차원(ms)    1차원(ms)    빨라진 배수")
     print("-" * 46)
     for n in sizes:
-        grid = [[1.0] * n for _ in range(n)]
-        flat = flatten(grid)              # 펴는 시간은 측정 밖
-        ms_2d = avg_ms(grid, grid)
-        ms_1d = avg_ms(flat, flat, fn=mac_flat)
+        pattern, filt = make_cross(n), make_x(n)            # 생성기로 만든 같은 입력
+        flat_p, flat_f = flatten(pattern), flatten(filt)    # 펴는 시간은 측정 밖
+        ms_2d = avg_ms(pattern, filt)
+        ms_1d = avg_ms(flat_p, flat_f, fn=mac_flat)
         print(f"{n}×{n}".ljust(10) + f"{ms_2d:.4f}".ljust(13) + f"{ms_1d:.4f}".ljust(13) + f"{ms_2d / ms_1d:.2f}배")
